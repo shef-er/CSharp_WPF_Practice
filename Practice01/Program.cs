@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Net.Mime;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
 
 namespace CSharp_WPF_Practice
 {
@@ -13,7 +15,7 @@ namespace CSharp_WPF_Practice
         private bool running;
         private double time;
 
-        public Simulation(Body body, double delta_t = 0.001)
+        public Simulation(Body body, double delta_t = 0.01)
         {
             this.delta_t = delta_t;
             this.body = body;
@@ -33,7 +35,7 @@ namespace CSharp_WPF_Practice
         private bool Step()
         {
             var position = body.Move(this.time);
-            Console.WriteLine($"Time: {time}\nPosition: ({position[0]}, {position[1]})");
+            Console.WriteLine($"Time: {time}\nPosition: ({position[0]}, {position[1]})\n");
             
             return !(position[1] <= 0);
         }
@@ -72,7 +74,7 @@ namespace CSharp_WPF_Practice
         public double[] Position => new[] { x, y };
     }
     
-    class Program
+    class Program : Form
     {
         private static void Main(string[] args)
         {   
