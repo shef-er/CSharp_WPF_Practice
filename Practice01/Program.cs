@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Net.Mime;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows.Forms;
 
 namespace CSharp_WPF_Practice
 {
@@ -35,9 +30,15 @@ namespace CSharp_WPF_Practice
         private bool Step()
         {
             var position = body.Move(this.time);
-            Console.WriteLine($"Time: {time}\nPosition: ({position[0]}, {position[1]})\n");
             
-            return !(position[1] <= 0);
+            if (position[1] <= 0)
+            {
+                Console.WriteLine($"Time: {time}\nPosition: ({body.Length}, 0)\n");
+                return false;
+            }
+            
+            Console.WriteLine($"Time: {time}\nPosition: ({position[0]}, {position[1]})\n");
+            return true;
         }
     }
 
@@ -48,33 +49,36 @@ namespace CSharp_WPF_Practice
         private double angle;
         private double velocity;
         private double mass;
-        private double x, y;
+        private double x0, y0, x, y, length;
         
         public Body(double angle, double velocity,
-                    double mass = 1, double x = 0, double y = 0)
+                    double mass = 1, double x0 = 0, double y0 = 0)
         {
             this.angle = angle;
             this.velocity = velocity;
             this.mass = mass;
-            this.x = x;
-            this.y = y;
+            this.x0 = x0;
+            this.y0 = y0;
+
+            this.length = velocity * velocity * Math.Sin(2 * angle) / acceleration;
             
             Console.WriteLine($"\nNew Body:\nAngle: {angle}\nv0: {velocity}\nm: {mass}"); 
         }
 
         public double[] Move(double t)
         {
-            double x, y;
-            x = this.x + velocity * t * Math.Cos(angle);
-            y = this.y + velocity * t * Math.Sin(angle) - mass * acceleration * t * t / 2;
+            x = x0 + velocity * t * Math.Cos(angle);
+            y = y0 + velocity * t * Math.Sin(angle) - mass * acceleration * t * t / 2;
             
-            return new[] {x, y};
+            return this.Position;
         }
+        
+        public double Length => length;
 
         public double[] Position => new[] { x, y };
     }
     
-    class Program : Form
+    class Program
     {
         private static void Main(string[] args)
         {   
