@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace CSharp_WPF_Practice
 {
@@ -33,11 +33,11 @@ namespace CSharp_WPF_Practice
             
             if (position[1] <= 0)
             {
-                Console.WriteLine($"Time: {time}\nPosition: ({body.Length}, 0)\n");
+                Console.WriteLine("Time: {0}\nPosition: ({1}, 0)\n", time, body.Length);
                 return false;
             }
-            
-            Console.WriteLine($"Time: {time}\nPosition: ({position[0]}, {position[1]})\n");
+
+            Console.WriteLine("Time: {0}\nPosition: ({1}, {2})\n", time, position[0], position[1]);
             return true;
         }
     }
@@ -61,8 +61,8 @@ namespace CSharp_WPF_Practice
             this.y0 = y0;
 
             this.length = velocity * velocity * Math.Sin(2 * angle) / acceleration;
-            
-            Console.WriteLine($"\nNew Body:\nAngle: {angle}\nv0: {velocity}\nm: {mass}"); 
+
+            Console.WriteLine("\nNew Body:\nAngle: {0}\nv0: {1}\nm: {2}", angle, velocity, mass); 
         }
 
         public double[] Move(double t)
@@ -73,9 +73,13 @@ namespace CSharp_WPF_Practice
             return this.Position;
         }
         
-        public double Length => length;
+        public double Length {    
+            get { return length; }
+        }
 
-        public double[] Position => new[] { x, y };
+        public double[] Position {    
+            get { return new[] { x, y }; }
+        }
     }
     
     class Program
@@ -85,6 +89,9 @@ namespace CSharp_WPF_Practice
             Body ball = new Body(Math.PI/4, 10);
             Simulation flight = new Simulation(ball);
             flight.Run();
+
+            while (true) {  }
+            
         }
     }
 }
