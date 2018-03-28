@@ -6,7 +6,9 @@ namespace Practice01
 {
     public class Simulation
     {
-        private const int sceneHeight = 900;
+        private const int sceneHeight = 500;
+        private const int sceneOffsetX = 30;
+        private const int sceneOffsetY = 0;
         
         private Body body;
         private Graphics graphics;
@@ -23,7 +25,7 @@ namespace Practice01
             this.graphics = graphics;
         }
 
-        public void Run()
+        public double[] Run()
         {
             DrawScene();
             DrawBody();
@@ -36,14 +38,17 @@ namespace Practice01
                 DrawBody();
             }
             
+            var position = this.body.Position;
+            
             using (StreamWriter sw = new StreamWriter("output.txt")) 
             {
-                var position = this.body.Position;
 
                 sw.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n",
                     time, position[0], position[1]);
                 sw.Close();
             }
+
+            return new[] {position[0], position[1], time};
         }
 
         private bool Step()
@@ -58,8 +63,10 @@ namespace Practice01
 
         private void DrawScene()
         {   
-            graphics.FillRectangle(new SolidBrush(Color.DeepSkyBlue), 0,   0, 10000, 10000);
-            graphics.FillRectangle(new SolidBrush(Color.ForestGreen), 0, sceneHeight, 10000, 10000);
+            //graphics.FillRectangle(new SolidBrush(Color.DeepSkyBlue), 0,   100, 10000, 10000);
+            //graphics.FillRectangle(new SolidBrush(Color.ForestGreen), 0, sceneHeight, 10000, 10000);
+            
+            graphics.FillRectangle(new SolidBrush(Color.Black), 0,   sceneHeight, 100000, 1);
         }
 
         private void DrawBody()
@@ -67,13 +74,8 @@ namespace Practice01
             var position = this.body.Position;
 
             graphics.FillEllipse(new SolidBrush(Color.DeepPink),
-                (int)(position[0]*2), sceneHeight -( (int)(position[1]*2) +2), 2, 2);
-        }
-        
-        public ulong GetCurrentTime()
-        {
-            TimeSpan time = DateTime.UtcNow - new DateTime(1970, 1, 1);
-            return (ulong) time.TotalSeconds;
+                sceneOffsetX + (int)(position[0]*1.25), 
+                sceneOffsetY + sceneHeight -( (int)(position[1]*1.25) +2), 2, 2);
         }
     }
 
