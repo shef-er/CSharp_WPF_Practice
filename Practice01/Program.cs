@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -10,14 +11,14 @@ namespace Practice01
 {
     class Program : Form
     {
-        String[] inputTags = {"angle", "v0", "mass", "x0", "y0"};
-        
+        private String[] inputTags = {"angle", "v0", "mass", "x0", "y0"};
+        private String[] inputLabels = { "Angle", "Velocity", "Mass", "X", "Y" };
         private Dictionary<string, double> parameters;
-
-        private bool defaultSimulationDone = false;
         private Control fieldResult;
-        
         private Control[] inputArray;
+        private Control[] labelArray;
+        private Graphics formGraphics;
+        private Point[] arrow = new Point[2];
 
         private Program(Dictionary<string, double> parameters)
         {
@@ -27,11 +28,11 @@ namespace Practice01
             this.Size = new Size(800, 600);
             this.StartPosition = FormStartPosition.CenterScreen;
 
+            formGraphics = this.CreateGraphics();
+
             // Controls
-            
             inputArray = new Control[5];
-            Control[] labelArray = new Control[5];
-            String[] labels = {"Angle", "Velocity", "Mass", "X", "Y"};
+            labelArray = new Control[5];
 
             for (var i = 0; i < 5; i++ ) 
             {
@@ -43,7 +44,7 @@ namespace Practice01
                 labelArray[i] = new Label();
                 labelArray[i].Location = new Point(30 + i*100, 10);
                 labelArray[i].Size = new Size(60, 20);
-                labelArray[i].Text = labels[i];
+                labelArray[i].Text = inputLabels[i];
                 
                 this.Controls.Add(inputArray[i]);
                 this.Controls.Add(labelArray[i]);
@@ -62,13 +63,14 @@ namespace Practice01
             
             this.Controls.Add(buttonStart);
             this.Controls.Add(fieldResult);
-           
+
+            this.MouseDown += form_OnMouseDown;
+            this.MouseUp += form_OnMouseUp;
+
         }
 
         private void DrawSimulation()
         {
-            Graphics formGraphics = this.CreateGraphics();
-            
             Body ball = new Body(parameters["angle"], parameters["v0"],
                 parameters["mass"], parameters["x0"], parameters["y0"]);
             Simulation flight = new Simulation(ball, formGraphics);
@@ -77,21 +79,55 @@ namespace Practice01
             fieldResult.Text = String.Format("Result: ({1}, {2}) after {0} seconds",
                 result[2], result[0], result[1]);
         }
-        
+
+        private void ChangeParameterByName(String name, String value)
+        {
+            this.parameters[name] = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+        }
+
         private void buttonStart_Click(object sender, EventArgs e)
         {
-
             for (var i = 0; i < 5; i++)
-                this.parameters[inputTags[i]] = Convert.ToDouble(inputArray[i].Text.Trim(), CultureInfo.InvariantCulture);
+                this.ChangeParameterByName(inputTags[i], inputArray[i].Text.Trim());
             
             DrawSimulation();
         }
-         
+
+        protected void form_OnMouseDown(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine("MouseDown: ({0}, {1})", e.X, e.Y);
+            arrow[0] = new Point(e.X, e.Y);
+
+        }
+
+        protected void form_OnMouseUp(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine("MouseUp: ({0}, {1})", e.X, e.Y);
+            arrow[1] = new Point(e.X, e.Y);
+
+            double arrowX = arrow[1].X - arrow[0].X;
+            double arrowY = arrow[1].Y - arrow[0].Y;
+            double arrowLength = Math.Sqrt(Math.Pow(arrowX, 2) + Math.Pow(arrowY, 2));
+            double arrowAngle = Math.Acos(arrowX / arrowLength);
+            ChangeParameterByName("angle", arrowAngle);
+
+            DrawArrow();
+
+        }
+
+        private void DrawArrow()
+        {
+            Pen pen = new Pen(Color.FromArgb(255, 0, 0, 255), 4);
+            pen.StartCap = LineCap.ArrowAnchor;
+            pen.EndCap = LineCap.RoundAnchor;
+            formGraphics.DrawLine(pen, arrow[1], arrow[0]);
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             DrawSimulation();
         }
-        
+
         [STAThread]
         private static void Main(string[] args)
         {
