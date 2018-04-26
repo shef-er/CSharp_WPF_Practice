@@ -83,77 +83,6 @@ namespace Practice01
 			formGraphics = this.CreateGraphics();
 		}
 
-		// Deprecated constructor
-		private Program(Dictionary<string, double> parameters, 
-						Dictionary<string, string> labels)
-		{
-			this.parameters = parameters;
-			this.labels = labels;
-
-			this.Text = "Body flight simulation";
-			this.Size = new Size(800, 600);
-			this.StartPosition = FormStartPosition.CenterScreen;
-
-			formGraphics = this.CreateGraphics();
-			
-			/*// Controls (Deprecated)
-			private Control[] inputArray = new Control[5];
-			private Control[] labelArray = new Control[5];
-
-			for (var i = 0; i < 5; i++ ) 
-			{
-				inputArray[i] = new TextBox();
-				inputArray[i].Location = new Point(30 + i*100, 30);
-				inputArray[i].Size = new Size(60, 20);
-				inputArray[i].Name = inputTags[i];
-				inputArray[i].Text = this.parameters[inputTags[i]].ToString(CultureInfo.InvariantCulture);
-
-				labelArray[i] = new Label();
-				labelArray[i].Location = new Point(30 + i*100, 10);
-				labelArray[i].Size = new Size(60, 20);
-				labelArray[i].Text = inputLabels[i];
-
-				this.Controls.Add(inputArray[i]);
-				this.Controls.Add(labelArray[i]);
-			}*/
-			
-			// TODO:Controls (new)
-			int index = 0;
-			foreach(var item in parameters)
-			{
-				Control input = new TextBox();
-				input.Location = new Point(30 + index*100, 30);
-				input.Size = new Size(60, 20);
-				input.Name = item.Key;
-				input.Text = item.Value.ToString(invC);
-				
-				Control label = new Label();
-				label.Location = new Point(30 + index*100, 10);
-				label.Size = new Size(60, 20);
-				label.Text = labels[item.Key];
-				
-				this.Controls.Add(input);
-				this.Controls.Add(label);
-				index++;
-			}
-
-			Button buttonStart = new Button();
-			buttonStart.Location = new Point(30, 70);
-			buttonStart.Size = new Size(60, 25);
-			buttonStart.Text = "Start";
-			buttonStart.Click += buttonStart_Click;
-
-			fieldResult = new TextBox();
-			fieldResult.Location = new Point(130, 70);
-			fieldResult.Size = new Size(360, 20);
-
-			this.Controls.Add(buttonStart);
-			this.Controls.Add(fieldResult);
-
-			this.MouseDown += form_OnMouseDown;
-			this.MouseUp += form_OnMouseUp;
-		}
-
 		private void buttonStart_Click(object sender, EventArgs e)
 		{
 			foreach(var item in parameters.ToList())
@@ -169,7 +98,6 @@ namespace Practice01
 		{
 			Console.WriteLine("MouseDown: ({0}, {1})", e.X, e.Y);
 			arrow[0] = new Point(e.X, e.Y);
-
 		}
 
 		protected void form_OnMouseUp(object sender, MouseEventArgs e)
@@ -251,45 +179,6 @@ namespace Practice01
 		private static void Main(string[] args)
 		{
 			Application.Run(new Program("input.txt"));
-			
-			/*
-			Dictionary<string, double> parameters = new Dictionary<string, double>();
-			parameters.Add("angle", 0);
-			parameters.Add("v0", 0);
-			parameters.Add("mass", 1);
-			parameters.Add("x0", 0);
-			parameters.Add("y0", 0);
-			Dictionary<string, string> labels = new Dictionary<string, string>();
-			labels.Add("angle", "Angle:");
-			labels.Add("v0", "Velocity:");
-			labels.Add("mass", "Mass:");
-			labels.Add("x0", "Start X:");
-			labels.Add("y0", "Start Y:");
-			try
-			{
-				using (var sr = new StreamReader("input.txt"))
-				{
-					String line;
-					while ( (line = sr.ReadLine()) != null )
-					{
-						var items = line.Split(':');
-						if (items[1] != null)
-						{
-							var key = items[0].Trim();
-							var value = Convert.ToDouble(items[1].Trim(), CultureInfo.InvariantCulture);
-							parameters[key] = value;
-						}
-					}
-					sr.Close();
-				}
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine("The file could not be read:");
-				Console.WriteLine(e.Message);
-			}
-			Application.Run(new Program(parameters, labels));
-			*/
 		}
 	}
 }
