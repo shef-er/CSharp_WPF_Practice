@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 
@@ -62,10 +62,10 @@ namespace Practice01
         }
 
         private void DrawScene()
-        {   
+        {
             //graphics.FillRectangle(new SolidBrush(Color.DeepSkyBlue), 0,   100, 10000, 10000);
             //graphics.FillRectangle(new SolidBrush(Color.ForestGreen), 0, sceneHeight, 10000, 10000);
-            
+            graphics.Clear(Color.White);
             graphics.FillRectangle(new SolidBrush(Color.Black), 0,   sceneHeight, 100000, 1);
         }
 
