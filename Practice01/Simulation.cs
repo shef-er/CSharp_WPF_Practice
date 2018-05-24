@@ -54,11 +54,25 @@ namespace Practice01
         private bool Step()
         {
             var position = this.body.Move(this.time);
-            
+            this.CheckCollision(position);
+
             //Console.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n", time, position[0], position[1]);
 
             return !(position[0] > 0 && position[1] == 0) &&
                    !(position[0] == 0 && position[1] < 0);
+        }
+
+        private void CheckCollision(double[] position)
+        {
+            if (position[0] >= 800 || position[0] <= 0)
+            {
+                this.body.InvertVelocityX();
+            }
+
+            /*if (position[1] <= 600 || position[1] >= 50)
+            {
+                this.body.InvertVelocityY();
+            }*/
         }
 
         private void DrawScene()
