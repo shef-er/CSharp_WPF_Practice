@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 
@@ -9,7 +9,7 @@ namespace Practice01
         private const double gravity = 9.80665;
         
         private double angle;
-        private double v0;
+        private double v0, vx, vy;
         private double mass;
         private double x0, y0, x, y, length;
         
@@ -18,6 +18,8 @@ namespace Practice01
         {
             this.angle = angle;
             this.v0 = v0;
+            this.vx = v0 * Math.Cos(angle);
+            this.vy = v0 * Math.Sin(angle);
             this.mass = mass;
             this.x0 = x0;
             this.y0 = y0;
@@ -30,10 +32,21 @@ namespace Practice01
             );
         }
 
+        public void InvertVelocityX()
+        {
+            this.vx = -vx;
+        }
+
+        public void InvertVelocityY()
+        {
+            this.vy = -vy;
+        }
+
         public double[] Move(double t)
         {
-            x = x0 + v0 * t * Math.Cos(angle);
-            y = y0 + v0 * t * Math.Sin(angle) - mass * gravity * t * t / 2;
+
+            x = x0 + vx * t;
+            y = y0 + vy * t - mass * gravity * t * t / 2;
             
             if (x > 0 && y <= 0)
             {
