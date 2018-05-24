@@ -6,9 +6,8 @@ namespace Practice01
 {
     public class Simulation
     {
-        private const int sceneHeight = 500;
-        private const int sceneOffsetX = 30;
-        private const int sceneOffsetY = 0;
+        private const int OffsetAxisX = 30;
+        private const int OffsetAxisY = 500;
         
         private Body body;
         private Graphics graphics;
@@ -18,7 +17,7 @@ namespace Practice01
 
         public Simulation(Body body, Graphics graphics)
         {
-            this.delta_t = 0.01;
+            this.delta_t = 0.05;
             this.body = body;
             this.time = 0;
             this.running = true;
@@ -32,55 +31,44 @@ namespace Practice01
             
             while (this.running)
             {
-                time += delta_t;
-                running = this.Step();
+                this.time += delta_t;
+                this.running = this.Step();
                 
                 DrawBody();
             }
+
+            WriteResultToFile("output.txt");
             
             var position = this.body.Position;
-            
-            using (StreamWriter sw = new StreamWriter("output.txt")) 
-            {
-
-                sw.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n",
-                    time, position[0], position[1]);
-                sw.Close();
-            }
-
-            return new[] {position[0], position[1], time};
+            return new[] {position.X, position.Y, time};
         }
 
         private bool Step()
         {
-            var position = this.body.Move(this.time);
-            this.CheckCollision(position);
+            var position = this.body.Position;
+            //this.CheckCollision(position);
+            
+            position = this.body.Move(time);
 
-            //Console.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n", time, position[0], position[1]);
+            Console.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n",
+                time, position.X, position.Y);
 
-            return !(position[0] > 0 && position[1] == 0) &&
-                   !(position[0] == 0 && position[1] < 0);
+            return !(position.X > 0 && position.Y == 0) &&
+                   !(position.X == 0 && position.Y < 0);
         }
 
-        private void CheckCollision(double[] position)
+        private void CheckCollision(Vector position)
         {
-            if (position[0] >= 800 || position[0] <= 0)
+            if (position.X >= 800 || position.X <= 0)
             {
                 this.body.InvertVelocityX();
             }
-
-            /*if (position[1] <= 600 || position[1] >= 50)
-            {
-                this.body.InvertVelocityY();
-            }*/
         }
 
         private void DrawScene()
         {
-            //graphics.FillRectangle(new SolidBrush(Color.DeepSkyBlue), 0,   100, 10000, 10000);
-            //graphics.FillRectangle(new SolidBrush(Color.ForestGreen), 0, sceneHeight, 10000, 10000);
             graphics.Clear(Color.White);
-            graphics.FillRectangle(new SolidBrush(Color.Black), 0,   sceneHeight, 100000, 1);
+            graphics.FillRectangle(new SolidBrush(Color.Black), 0, OffsetAxisY, 100000, 1);
         }
 
         private void DrawBody()
@@ -88,8 +76,21 @@ namespace Practice01
             var position = this.body.Position;
 
             graphics.FillEllipse(new SolidBrush(Color.DeepPink),
-                sceneOffsetX + (int)(position[0]*1.25), 
-                sceneOffsetY + sceneHeight -( (int)(position[1]*1.25) +2), 2, 2);
+                OffsetAxisX + (int)(position.X * 1.25), 
+                OffsetAxisY - ((int)(position.Y * 1.25) + 2), 2, 2);
+        }
+        
+        /* ---- */
+
+        private void WriteResultToFile(String filename)
+        {
+            var position = this.body.Position;
+            using (StreamWriter sw = new StreamWriter(filename)) 
+            {
+                sw.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n",
+                    time, position.X, position.Y);
+                sw.Close();
+            }
         }
     }
 }

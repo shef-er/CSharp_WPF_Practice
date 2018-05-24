@@ -16,15 +16,14 @@ namespace Practice01
 		private Dictionary<string, double> parameters;
 		private Dictionary<string, string> labels;
 		
-		private Control fieldResult;
 		private Point[] arrow = new Point[2];
 		
-		private Graphics formGraphics;
+		private Graphics canvasGraphics;
 		
 		private Program(string filename)
 		{
 			this.Text = "Body flight simulation";
-			this.Size = new Size(800, 600);
+			this.Size = new Size(1280, 720);
 			this.StartPosition = FormStartPosition.CenterScreen;
 			
 			parameters = new Dictionary<string, double>();
@@ -44,7 +43,7 @@ namespace Practice01
 			labels.Add("y0", "Start Y:");
 			
 			// Controls
-			int index = 0;
+			var index = 0;
 			foreach(var item in parameters)
 			{
 				Control input = new TextBox();
@@ -69,52 +68,25 @@ namespace Practice01
 			buttonStart.Text = "Start";
 			buttonStart.Click += buttonStart_Click;
 
-			fieldResult = new TextBox();
-			fieldResult.Location = new Point(130, 70);
-			fieldResult.Size = new Size(360, 20);
+			Control textBoxResult;
+			textBoxResult = new TextBox();
+			textBoxResult.Location = new Point(130, 70);
+			textBoxResult.Size = new Size(360, 20);
+			textBoxResult.Name = "Result";
+			
+			// Canvas
+			PictureBox canvas = new PictureBox();
+			canvas.Location = new Point(30, 110);
+			canvas.Size = new Size(1000, 550);
+			canvas.Name = "Canvas";
+			canvas.MouseUp += canvas_OnMouseUp;
 
 			this.Controls.Add(buttonStart);
-			this.Controls.Add(fieldResult);
-
-			this.MouseDown += form_OnMouseDown;
-			this.MouseUp += form_OnMouseUp;
+			this.Controls.Add(textBoxResult);
+			this.Controls.Add(canvas);
 			
 			// Create graphics object
-			formGraphics = this.CreateGraphics();
-		}
-
-		private void buttonStart_Click(object sender, EventArgs e)
-		{
-			foreach(var item in parameters.ToList())
-			{	
-				var input = this.Controls.Find(item.Key, false)[0];
-				this.UpdateParameterByName(item.Key, Convert.ToDouble(input.Text.Trim(), invC));
-			}
-			
-			DrawSimulation();
-		}
-
-		protected void form_OnMouseDown(object sender, MouseEventArgs e)
-		{
-			Console.WriteLine("MouseDown: ({0}, {1})", e.X, e.Y);
-            //arrow[0] = new Point(e.X, e.Y);
-            arrow[0] = new Point(30, 500);
-        }
-
-		protected void form_OnMouseUp(object sender, MouseEventArgs e)
-		{
-			Console.WriteLine("MouseUp: ({0}, {1})", e.X, e.Y);
-			arrow[1] = new Point(e.X, e.Y);
-
-			// TODO: pass and count all of this mess separatley
-			double arrowX = arrow[1].X - arrow[0].X;
-			double arrowY = arrow[1].Y - arrow[0].Y;
-			double arrowLength = Math.Sqrt(Math.Pow(arrowX, 2) + Math.Pow(arrowY, 2));
-			double arrowAngle = Math.Acos(arrowX / arrowLength);
-			
-			UpdateParameterByName("angle", arrowAngle);
-
-			DrawArrow();
+			canvasGraphics = canvas.CreateGraphics();
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
@@ -122,11 +94,28 @@ namespace Practice01
 			DrawSimulation();
 		}
 
-		private void UpdateParameterByName(String name, double value)
+		private void buttonStart_Click(object sender, EventArgs e)
 		{
-			this.parameters[name] = value;
-			var input = this.Controls.Find(name, false)[0];
-			input.Text = value.ToString(invC);
+			UpdateAllParameters();
+			
+			DrawSimulation();
+		}
+
+		private void canvas_OnMouseUp(object sender, MouseEventArgs e)
+		{
+			Console.WriteLine("MouseUp: ({0}, {1})", e.X, e.Y);
+			
+			arrow[0] = new Point(30, 500);
+			arrow[1] = new Point(e.X, e.Y);
+
+			double arrowX = arrow[1].X - arrow[0].X;
+			double arrowY = arrow[1].Y - arrow[0].Y;
+			//double arrowLength = Math.Sqrt(Math.Pow(arrowX, 2) + Math.Pow(arrowY, 2));
+		
+			double angle = Math.Abs(Math.Atan(arrowY / arrowX));
+			UpdateParameterByName("angle", angle); 
+
+			DrawArrow();
 		}
 
 		private void DrawArrow()
@@ -134,7 +123,8 @@ namespace Practice01
 			Pen pen = new Pen(Color.FromArgb(255, 0, 0, 255), 3);
 			pen.StartCap = LineCap.ArrowAnchor;
 			pen.EndCap = LineCap.RoundAnchor;
-			formGraphics.DrawLine(pen, arrow[1], arrow[0]);
+			
+			canvasGraphics.DrawLine(pen, arrow[1], arrow[0]);
 		}
 
 		private void DrawSimulation()
@@ -142,11 +132,30 @@ namespace Practice01
 			Body ball = new Body(parameters["angle"], parameters["v0"],
 				parameters["mass"], parameters["x0"], parameters["y0"]);
 			
-			Simulation flight = new Simulation(ball, formGraphics);
+			Simulation flight = new Simulation(ball, canvasGraphics);
 			var result = flight.Run();
 
-			fieldResult.Text = String.Format("Result: ({1}, {2}) after {0} seconds",
+			var input = this.Controls.Find("Result", false)[0];
+			input.Text = String.Format("Result: ({1}, {2}) after {0} seconds",
 				result[2], result[0], result[1]);
+		}
+
+		/* -- Parameters -- */
+		
+		private void UpdateAllParameters()
+		{
+			foreach(var item in parameters.ToList())
+			{
+				var input = this.Controls.Find(item.Key, false)[0];
+				this.UpdateParameterByName(item.Key, Convert.ToDouble(input.Text.Trim(), invC));
+			}
+		}
+
+		private void UpdateParameterByName(String name, double value)
+		{
+			this.parameters[name] = value;
+			var input = this.Controls.Find(name, false)[0];
+			input.Text = value.ToString(invC);
 		}
 
 		private void ReadParametersFromFile(string filename)
