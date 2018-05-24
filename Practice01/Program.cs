@@ -97,8 +97,9 @@ namespace Practice01
 		protected void form_OnMouseDown(object sender, MouseEventArgs e)
 		{
 			Console.WriteLine("MouseDown: ({0}, {1})", e.X, e.Y);
-			arrow[0] = new Point(e.X, e.Y);
-		}
+            //arrow[0] = new Point(e.X, e.Y);
+            arrow[0] = new Point(30, 500);
+        }
 
 		protected void form_OnMouseUp(object sender, MouseEventArgs e)
 		{
