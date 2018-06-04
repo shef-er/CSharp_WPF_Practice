@@ -6,39 +6,13 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Practice01
 {
-    public struct Vector
-    {  
-        private double x;
-        private double y;
-
-        public Vector(double x, double y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-        public double X
-        {
-            get => x;
-            set => x = value;
-        }
-
-        public double Y
-        {
-            get => y;
-            set => y = value;
-        }
-    }
-    
-    /* ---- */
-    
     public class Body
     {
         private const double G = 9.80665;
         
         private double angle, v0, mass;
         private Vector r, r0, v;
-        private List<Vector> path;
+        //private List<Vector> path;
         
         public Body(double angle, double v0,
             double mass = 1, double x0 = 0, double y0 = 0)
@@ -49,7 +23,7 @@ namespace Practice01
             this.v = new Vector(v0 * Math.Cos(angle), v0 * Math.Sin(angle));
             this.r = new Vector(0, 0);
             this.r0 = new Vector(x0, y0);
-            this.path = new List<Vector>();
+            //this.path = new List<Vector>();
             
             Console.WriteLine(
                 "\nNew Body:\n  Angle: {0}\n  Velocity: {1}\n  Mass: {2}\n  Position: ({3}, {4})\n",
@@ -59,7 +33,7 @@ namespace Practice01
 
         public Vector Position => r;
         
-        public List<Vector> Path => path;
+        //public List<Vector> Path => path;
 
         public void InvertVelocityX()
         {
@@ -73,7 +47,7 @@ namespace Practice01
 
         public Vector Move(double t)
         {
-            this.path.Add(this.Position);
+            //this.path.Add(this.Position);
             
             this.r.X = r0.X + v.X * t;
             this.r.Y = r0.Y + v.Y * t - mass * G * t * t / 2;

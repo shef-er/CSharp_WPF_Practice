@@ -1,46 +1,75 @@
 using System;
-using System.Drawing;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Practice01
 {
     public class Simulation
     {
+        Timer timer = new Timer();
+        
         private const int OffsetAxisX = 30;
         private const int OffsetAxisY = 500;
         
         private Body body;
-        private Graphics graphics;
+
+        private Drawer drawer;
+        private double fps;
         private double delta_t;
+        private int interval;
         private double time;
         private bool running;
 
-        public Simulation(Body body, Graphics graphics)
+        public Simulation(Body body, Drawer drawer)
         {
-            this.delta_t = 0.05;
+            this.fps = 100;
+            this.delta_t = 1/fps;
+            this.interval = (int)(1000/fps);
+            
             this.body = body;
             this.time = 0;
             this.running = true;
-            this.graphics = graphics;
-        }
-
-        public double[] Run()
-        {
-            DrawScene();
-            DrawBody();
             
-            while (this.running)
+            this.drawer = drawer;
+            
+            this.timer.Interval = this.interval;
+            this.timer.Tick += new EventHandler(Timer_Tick);
+            this.timer.Enabled = true;
+        } 
+
+        private void Timer_Tick(object Sender, EventArgs e)     
+        {
+            if (!running)
             {
-                this.time += delta_t;
-                this.running = this.Step();
-                
-                DrawBody();
+                Stop();
+                return;
             }
 
-            WriteResultToFile("output.txt");
+            drawer.DrawStep(body.Position);
+
+            running = Step();
+        }  
+
+        public void Start()
+        {
+            timer.Start();
+            Console.WriteLine("\nTIMER: STARTED\n");
+        }
+
+        public double[] Stop()
+        {
+            timer.Stop();
+            Console.WriteLine("\nTIMER: STOPED\n");
             
-            var position = this.body.Position;
-            return new[] {position.X, position.Y, time};
+            //WriteResultToFile("output.txt");
+            
+            return new[] {body.Position.X, body.Position.Y, time};
+        }
+
+        public void Reset(Body newBody)
+        {
+            body = null;
+            body = newBody;
         }
 
         private bool Step()
@@ -48,9 +77,10 @@ namespace Practice01
             var position = this.body.Position;
             //this.CheckCollision(position);
             
-            position = this.body.Move(time);
+            time += delta_t;
+            position = body.Move(time);
 
-            Console.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n",
+            Console.WriteLine("\nTime: {0}\nPosition: ({1}, {2})",
                 time, position.X, position.Y);
 
             return !(position.X > 0 && position.Y == 0) &&
@@ -64,31 +94,15 @@ namespace Practice01
                 this.body.InvertVelocityX();
             }
         }
-
-        private void DrawScene()
-        {
-            graphics.Clear(Color.White);
-            graphics.FillRectangle(new SolidBrush(Color.Black), 0, OffsetAxisY, 100000, 1);
-        }
-
-        private void DrawBody()
-        {
-            var position = this.body.Position;
-
-            graphics.FillEllipse(new SolidBrush(Color.DeepPink),
-                OffsetAxisX + (int)(position.X * 1.25), 
-                OffsetAxisY - ((int)(position.Y * 1.25) + 2), 2, 2);
-        }
         
-        /* ---- */
+        /* -- Write -- */
 
         private void WriteResultToFile(String filename)
         {
-            var position = this.body.Position;
-            using (StreamWriter sw = new StreamWriter(filename)) 
+            using (StreamWriter sw = new StreamWriter(filename))
             {
                 sw.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n",
-                    time, position.X, position.Y);
+                    time, body.Position.X, body.Position.Y);
                 sw.Close();
             }
         }

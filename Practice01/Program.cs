@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,9 +15,11 @@ namespace Practice01
 		private Dictionary<string, double> parameters;
 		private Dictionary<string, string> labels;
 		
-		private Point[] arrow = new Point[2];
-		
 		private Graphics canvasGraphics;
+		
+		private Point canvasZeroOffset;
+		private Drawer canvasDrawer;
+		private Simulation simulation;
 		
 		private Program(string filename)
 		{
@@ -42,7 +43,7 @@ namespace Practice01
 			labels.Add("x0", "Start X:");
 			labels.Add("y0", "Start Y:");
 			
-			// Controls
+			// Parameter fields
 			var index = 0;
 			foreach(var item in parameters)
 			{
@@ -62,15 +63,24 @@ namespace Practice01
 				index++;
 			}
 
+			// Simulation start button
 			Button buttonStart = new Button();
 			buttonStart.Location = new Point(30, 70);
 			buttonStart.Size = new Size(60, 25);
 			buttonStart.Text = "Start";
 			buttonStart.Click += buttonStart_Click;
 
+			// Simulation stop button
+			Button buttonStop = new Button();
+			buttonStop.Location = new Point(130, 70);
+			buttonStop.Size = new Size(60, 25);
+			buttonStop.Text = "Stop";
+			buttonStop.Click += buttonStop_Click;
+
+			// Results after stop
 			Control textBoxResult;
 			textBoxResult = new TextBox();
-			textBoxResult.Location = new Point(130, 70);
+			textBoxResult.Location = new Point(230, 70);
 			textBoxResult.Size = new Size(360, 20);
 			textBoxResult.Name = "Result";
 			
@@ -81,63 +91,72 @@ namespace Practice01
 			canvas.Name = "Canvas";
 			canvas.MouseUp += canvas_OnMouseUp;
 
+			// Adding controls to window
 			this.Controls.Add(buttonStart);
+			this.Controls.Add(buttonStop);
 			this.Controls.Add(textBoxResult);
 			this.Controls.Add(canvas);
 			
-			// Create graphics object
-			canvasGraphics = canvas.CreateGraphics();
+			// Create graphics stuff
+			this.canvasGraphics = canvas.CreateGraphics();
+			this.canvasZeroOffset = new Point(30, 500);
+			this.canvasDrawer = new Drawer(canvasGraphics, canvasZeroOffset);
+			
+			//Create simulation
+			Body ball = new Body(parameters["angle"], parameters["v0"],
+				parameters["mass"], parameters["x0"], parameters["y0"]);
+			
+			this.simulation = new Simulation(ball, canvasDrawer);
 		}
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			DrawSimulation();
+			simulation.Start();
 		}
 
 		private void buttonStart_Click(object sender, EventArgs e)
 		{
 			UpdateAllParameters();
-			
-			DrawSimulation();
+			StartSimulation();
+		}
+
+		private void buttonStop_Click(object sender, EventArgs e)
+		{
+			StopSimulation();
 		}
 
 		private void canvas_OnMouseUp(object sender, MouseEventArgs e)
-		{
-			Console.WriteLine("MouseUp: ({0}, {1})", e.X, e.Y);
-			
-			arrow[0] = new Point(30, 500);
-			arrow[1] = new Point(e.X, e.Y);
-
-			double arrowX = arrow[1].X - arrow[0].X;
-			double arrowY = arrow[1].Y - arrow[0].Y;
-			//double arrowLength = Math.Sqrt(Math.Pow(arrowX, 2) + Math.Pow(arrowY, 2));
-		
-			double angle = Math.Abs(Math.Atan(arrowY / arrowX));
-			UpdateParameterByName("angle", angle); 
-
-			DrawArrow();
+		{	
+			SetAngle(new Point(e.X, e.Y), canvasZeroOffset);
 		}
 
-		private void DrawArrow()
-		{
-			Pen pen = new Pen(Color.FromArgb(255, 0, 0, 255), 3);
-			pen.StartCap = LineCap.ArrowAnchor;
-			pen.EndCap = LineCap.RoundAnchor;
-			
-			canvasGraphics.DrawLine(pen, arrow[1], arrow[0]);
-		}
-
-		private void DrawSimulation()
+		private void StartSimulation()
 		{
 			Body ball = new Body(parameters["angle"], parameters["v0"],
 				parameters["mass"], parameters["x0"], parameters["y0"]);
 			
-			Simulation flight = new Simulation(ball, canvasGraphics);
-			var result = flight.Run();
+			simulation.Reset(ball);
+			simulation.Start();
+		}
 
+		private void StopSimulation()
+		{
+			var result = simulation.Stop();
 			var input = this.Controls.Find("Result", false)[0];
 			input.Text = String.Format("Result: ({1}, {2}) after {0} seconds",
 				result[2], result[0], result[1]);
+		}
+
+		private void SetAngle(Point arrowEnd, Point arrowStart)
+		{
+			canvasDrawer.DrawArrow(arrowEnd);
+			
+			double arrowX = arrowEnd.X - arrowStart.X;
+			double arrowY = arrowEnd.Y - arrowStart.Y;
+			//double arrowLength = Math.Sqrt(Math.Pow(arrowX, 2) + Math.Pow(arrowY, 2));
+		
+			double angle = Math.Abs(Math.Atan(arrowY / arrowX));
+			UpdateParameterByName("angle", angle); 
 		}
 
 		/* -- Parameters -- */
