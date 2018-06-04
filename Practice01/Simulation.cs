@@ -34,7 +34,6 @@ namespace Practice01
             
             this.timer.Interval = this.interval;
             this.timer.Tick += new EventHandler(Timer_Tick);
-            this.timer.Enabled = true;
         } 
 
         private void Timer_Tick(object Sender, EventArgs e)     
