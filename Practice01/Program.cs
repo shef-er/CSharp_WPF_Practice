@@ -27,6 +27,13 @@ namespace Practice01
 			this.Size = new Size(1280, 720);
 			this.StartPosition = FormStartPosition.CenterScreen;
 			
+			labels = new Dictionary<string, string>();
+			labels.Add("angle", "Angle:");
+			labels.Add("v0", "Velocity:");
+			labels.Add("mass", "Mass:");
+			labels.Add("x0", "Start X:");
+			labels.Add("y0", "Start Y:");
+			
 			parameters = new Dictionary<string, double>();
 			parameters.Add("angle", 0);
 			parameters.Add("v0", 0);
@@ -35,13 +42,6 @@ namespace Practice01
 			parameters.Add("y0", 0);
 
 			this.ReadParametersFromFile(filename);
-			
-			labels = new Dictionary<string, string>();
-			labels.Add("angle", "Angle:");
-			labels.Add("v0", "Velocity:");
-			labels.Add("mass", "Mass:");
-			labels.Add("x0", "Start X:");
-			labels.Add("y0", "Start Y:");
 			
 			// Parameter fields
 			var index = 0;
@@ -111,7 +111,7 @@ namespace Practice01
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			simulation.Start();
+			//simulation.Start();
 		}
 
 		private void buttonStart_Click(object sender, EventArgs e)
@@ -166,7 +166,8 @@ namespace Practice01
 			foreach(var item in parameters.ToList())
 			{
 				var input = this.Controls.Find(item.Key, false)[0];
-				this.UpdateParameterByName(item.Key, Convert.ToDouble(input.Text.Trim(), invC));
+				this.UpdateParameterByName(item.Key, 
+					Convert.ToDouble(input.Text.Trim(), invC));
 			}
 		}
 

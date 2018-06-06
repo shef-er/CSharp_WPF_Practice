@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Windows.Forms;
 
 namespace Practice01
@@ -7,9 +6,6 @@ namespace Practice01
     public class Simulation
     {
         Timer timer = new Timer();
-        
-        private const int OffsetAxisX = 30;
-        private const int OffsetAxisY = 500;
         
         private Body body;
 
@@ -60,7 +56,7 @@ namespace Practice01
             timer.Stop();
             Console.WriteLine("\nTIMER: STOPED\n");
             
-            //WriteResultToFile("output.txt");
+            Util.WriteResultToFile("output.txt", time, body.Position);
             
             return new[] {body.Position.X, body.Position.Y, time};
         }
@@ -73,37 +69,30 @@ namespace Practice01
 
         private bool Step()
         {
-            var position = this.body.Position;
-            //this.CheckCollision(position);
-            
+            var positionBuffer = this.body.Position;
+            this.CheckCollision(positionBuffer);
+
             time += delta_t;
-            position = body.Move(time);
+            
+            Console.WriteLine("\nTime: {0};", time);
+            var velocity = body.Move(delta_t);
 
-            Console.WriteLine("\nTime: {0}\nPosition: ({1}, {2})",
-                time, position.X, position.Y);
-
-            return !(position.X > 0 && position.Y == 0) &&
-                   !(position.X == 0 && position.Y < 0);
+            return !(velocity.X == 0) && !(velocity.Y == 0);
         }
 
+        
         private void CheckCollision(Vector position)
         {
-            if (position.X >= 800 || position.X <= 0)
+            if (position.X >= 740 || position.X < 0)
             {
                 this.body.InvertVelocityX();
             }
-        }
-        
-        /* -- Write -- */
-
-        private void WriteResultToFile(String filename)
-        {
-            using (StreamWriter sw = new StreamWriter(filename))
+            
+            if (position.Y >= 500 || position.Y < 0)
             {
-                sw.WriteLine("\nTime: {0}\nPosition: ({1}, {2})\n",
-                    time, body.Position.X, body.Position.Y);
-                sw.Close();
+                this.body.InvertVelocityY();
             }
         }
+        
     }
 }

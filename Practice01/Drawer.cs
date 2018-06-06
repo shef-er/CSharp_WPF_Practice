@@ -21,11 +21,14 @@ namespace Practice01
             
             graphics.Clear(Color.White);
             
+            graphics.FillRectangle(new SolidBrush(Color.Black), zeroOffset.X, 0, 1, zeroOffset.Y);
+            graphics.FillRectangle(new SolidBrush(Color.Black), 770, 0, 1, zeroOffset.Y);
+            
             graphics.FillRectangle(new SolidBrush(Color.Black), 0, zeroOffset.Y, 100000, 1);
             
             graphics.FillEllipse(new SolidBrush(Color.DeepPink),
-                zeroOffset.X + (int)(position.X * 1.25), 
-                zeroOffset.Y - ((int)(position.Y * 1.25) + 5), 5, 5);
+                zeroOffset.X + (int)(position.X), 
+                zeroOffset.Y - ((int)(position.Y) + 5), 5, 5);
         }
         
         public void DrawArrow(Point arrowEnd)
