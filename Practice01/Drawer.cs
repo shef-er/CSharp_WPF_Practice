@@ -22,7 +22,7 @@ namespace Practice01
             graphics.Clear(Color.White);
             
             graphics.FillRectangle(new SolidBrush(Color.Black), zeroOffset.X, 0, 1, zeroOffset.Y);
-            graphics.FillRectangle(new SolidBrush(Color.Black), 770, 0, 1, zeroOffset.Y);
+            graphics.FillRectangle(new SolidBrush(Color.Black), 771, 0, 1, zeroOffset.Y);
             
             graphics.FillRectangle(new SolidBrush(Color.Black), 0, zeroOffset.Y, 100000, 1);
             

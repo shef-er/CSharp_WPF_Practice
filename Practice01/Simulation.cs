@@ -20,7 +20,7 @@ namespace Practice01
         {
             this.fps = 100;
             this.delta_t = 1/fps;
-            this.interval = (int)(1000/fps);
+            this.interval = (int)(1000/(fps*10));
             
             this.body = body;
             this.time = 0;
